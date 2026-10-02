@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Builds the Auction code as an import-free image whose single section
+     (RVA 0x1000) auction_exe_patch.py relocates to VA 0x04A15000 and copies
+     into a new section of Testing.exe. Never loaded as a DLL. -->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32"><Configuration>Release</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals"><ProjectGuid>{9A41C7E2-3D58-4F0B-8E6A-1C2B7D4E5F60}</ProjectGuid></PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <!-- The emulator checkout that provides the shared wire contract (src/common/auction_protocol.hpp). -->
+    <EmulatorDir Condition="'$(EmulatorDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\rathena-auction</EmulatorDir>
+    <EmulatorRoot>$([MSBuild]::EnsureTrailingSlash('$(EmulatorDir)'))</EmulatorRoot>
+    <OutDir>$(PatchOutput)\</OutDir>
+    <IntDir>$(PatchOutput)\obj\</IntDir>
+    <TargetName>auction_section</TargetName>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(EmulatorRoot)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <Optimization>MinSpace</Optimization>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <SDLCheck>false</SDLCheck>
+      <OmitDefaultLibName>true</OmitDefaultLibName>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalOptions>/Zc:threadSafeInit- /d2FH4- %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <NoEntryPoint>true</NoEntryPoint>
+      <BaseAddress>0x10000000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalOptions>/MERGE:.rdata=.text /MERGE:.data=.text /MERGE:.bss=.text /SECTION:.text,ERW /EMITPOGOPHASEINFO /IGNORE:4254 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup><ClCompile Include="..\auction_window.cpp" /></ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="RequirePatchOutput" BeforeTargets="PrepareForBuild" Condition="'$(PatchOutput)' == ''"><Error Text="Pass /p:PatchOutput=an-isolated-output-directory" /></Target>
+  <Target Name="RequireEmulator" BeforeTargets="PrepareForBuild" Condition="!Exists('$(EmulatorRoot)src\common\auction_protocol.hpp')"><Error Text="Emulator not found at $(EmulatorRoot). Pass /p:EmulatorDir=path-to-rathena-auction" /></Target>
+</Project>

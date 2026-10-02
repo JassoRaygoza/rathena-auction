@@ -1,0 +1,5 @@
+* text=auto
+*.diff -text
+*.bmp binary
+*.grf binary
+*.exe binary
