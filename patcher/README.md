@@ -15,7 +15,7 @@ signatures are found, not only on one exact file. If something does not match, t
 shown as not compatible and nothing is written. If the EXE has no room for a new section header,
 the code is appended to its last section instead (the 2025 client needs this).
 
-**Download:** [release/ClientPatcher.exe](ClientPatcher.exe). It needs .NET Framework 4,
+**Download:** [ClientPatcher.exe](ClientPatcher.exe). It needs .NET Framework 4,
 which is already part of Windows 10 and 11.
 
 [Español](#uso-en-español)
